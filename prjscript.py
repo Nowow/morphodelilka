@@ -90,7 +90,7 @@ rootdict = kuzdra.rootdict
 # print(stmr.stemmmm('изменяющимися'))
 
 
-
+# VSE KAKIE EST SUFFIXI NA KONCE ZAPISIVAET
 def get_sfx(text, suffix):
     sfxcash = []
     for i in suffix:
@@ -159,7 +159,36 @@ class prefixwork:
             self.ostatok = text
             self.maxprefix = ''
         
+class postfixwork:
+    def get_postfix(self, text, post):
+        self.postfixlist = ['']
+        
+        for i in post:
+            if text.endswith(i):
+                print(' CLASSNAJA okon4anie ' + i + ' !!!')
+                vowelcount = 0
+                for s in vowels:
                     
+                    vowelcount = vowelcount + text[:len(text)-len(i)].count(s)
+                self.vowelcount = vowelcount
+                if vowelcount > 0:
+#                    ostatok = text[len(i):]
+                    self.postfixlist.append(i)
+    def strip_end(self):
+        if len(self.postfixlist) > 0:
+            self.maxpostfix = max(self.postfixlist, key = len)
+            
+    def __init__(self, text, post = stmr.gtpost()):
+        self.get_postfix(text, post)
+        self.strip_end()
+    
+        if len(self.postfixlist) > 0:
+            self.ostatok = text[:len(text)-len(self.maxpostfix)]
+        else:
+            self.ostatok = text
+            self.maxpostfix = ''
+    
+    
 
                 
 def get_syll(word):
@@ -221,8 +250,11 @@ def hicc():
               
     
 def get_root(text):
-    word = stmr.stemmmm(text)[1]
-    prtr = stmr.stemmmm(text)[2][0]
+    word = postfixwork(text)
+    prtr = word.maxpostfix
+    word = word.ostatok
+#    word = stmr.stemmmm(text)[1]
+#    prtr = stmr.stemmmm(text)[2][0]
     print(prtr)
     print(word)
     nopr = None
