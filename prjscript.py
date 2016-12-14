@@ -250,6 +250,7 @@ def hicc():
               
     
 def get_root(text):
+    global prtr
     word = postfixwork(text)
     prtr = word.maxpostfix
     word = word.ostatok
@@ -506,6 +507,7 @@ class kuznecFinder(kuznec, separator):
 class morphSplitnCheck(kuznecFinder):
     def __init__(self,word):
         self.raspil(word)
+        self.postfix = prtr
         
     def do_check(self,morph):
         self.notinit(self.root)
