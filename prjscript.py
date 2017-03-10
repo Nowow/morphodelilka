@@ -5,7 +5,7 @@
 
 
 from nltk.stem import snowball as stem
-import time
+#import time
 import pymystem3
 from collections import defaultdict
 import operator
@@ -214,14 +214,14 @@ class prefixwork:
         for i in prst:
             if text.startswith(i):
                 #print(' CLASSNAJA Приставка ' + i + ' !!!')
-                vowelcount = 0
-                for s in vowels:
+                #vowelcount = 0
+                #for s in vowels:
                     
-                    vowelcount = vowelcount + text[len(i):].count(s)
-                self.vowelcount = vowelcount
-                if vowelcount > 0:
+                #    vowelcount = vowelcount + text[len(i):].count(s)
+                #self.vowelcount = vowelcount
+                #if vowelcount > 0:
 #                    ostatok = text[len(i):]
-                    self.prefixlist.append(i)
+                self.prefixlist.append(i)
     def strip_start(self):
         if len(self.prefixlist) > 0:
             self.maxprefix = max(self.prefixlist, key = len)
@@ -361,6 +361,7 @@ class goThroughWord():
             if (globalCounter>0):
                 zzjay.root = [nopr.ostatok]
                 zzjay.prefix = [nopr.maxprefix]
+                zzjay.partofspeech = PoS
                 zzjay.assemble()
                 if zzjay.do_check(nopr.maxprefix,'префикс'):
                     print('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
@@ -371,7 +372,7 @@ class goThroughWord():
         sfxrtcash = {}
         sfxrtcash2 = {}
         action_done = get_sfx(word, stmr.gtsfx())
-        
+        self.action_done = action_done
         #print(list(set(action_done.sfxcash)))
         for i in list(set(action_done.sfxcash)):
             #print(i)
@@ -1032,21 +1033,37 @@ class morphSplitnCheck(kuznecFinder, rootworks):
         one_prefix = None
         two_prefix = None
         two_root_no_prefix = None
+        if globalCounter:
+            for i in rootdict:
+                if word in rootdict[i]:
+                    self.separated = word
+                    self.root = word
+                    return
         self.raspil(word)
         result_suffix_dict = {}
+        result_root_list = []
         if len(self.firstResult.suffix) > 0:
             result_suffix_dict.update({'first':len(self.firstResult.suffix[0])})
         if len(self.secondResult.suffix) > 0:
             result_suffix_dict.update({'second':len(self.secondResult.suffix[0])})
         if len(self.fifthResult.suffix) > 0:
             result_suffix_dict.update({'fifth':len(self.fifthResult.suffix[0])})
+        #if len(self.firstResult.root[0]) > 0:
+        #    result_root_list.append(self.firstResult.root)
+        if len(self.secondResult.root) > 0:
+            result_root_list.append(self.secondResult.root[0])
+        if len(self.fifthResult.root) > 0:
+            result_root_list.append(self.fifthResult.root[0])
+        
+        
       # {'first':len(self.firstResult.suffix[0]),'second':len(self.secondResult.suffix),'fifth':len(self.fifthResult.suffix)}
         if self.redflag == True:
             return
         self.grab(self.firstResult)
         self.assemble()
-        if len(self.suffix) > 0:                        
-            one_prefix = self.do_check(self.suffix[0])
+        if len(self.suffix) > 0:
+            if len(self.suffix[0]) >0 :                        
+                one_prefix = self.do_check(self.suffix[0])
         self.grab(self.secondResult)
         self.assemble()
         if len(self.suffix) > 0:        
@@ -1071,6 +1088,13 @@ class morphSplitnCheck(kuznecFinder, rootworks):
 #            self.assemble()
 #            print('maybe two')
         else:                               # MULTIROOT SHAKES IN
+
+            if (len(self.firstResult.root) > 0)&(len(self.fifthResult.root) > 0):
+                if (len(self.firstResult.root[0]) > len(self.fifthResult.root[0]) + 1)&(len(self.fifthResult.root[0]) < 4):
+                    print('ljhujkbmada')
+                    self.grab(self.firstResult)
+                    self.assemble()
+                    return
             self.grab(self.fifthResult)
             self.assemble()
             #print('nihuja')
@@ -1160,8 +1184,8 @@ def goThroughCorpus(inp, outputPath):
         item = item.replace('\n','')
         print(item)
         t = morphSplitnCheck(item)
-        t.grab(t.fifthResult)
-        t.assemble()
+#        t.grab(t.fifthResult)
+#        t.assemble()
         csvCash += t.originalWord + '\t' + t.separated.replace('::',':') + '\n'
         #csvCash += t.originalWord + '\t' + ':'.join([t.fifthResult.extraRoot[0],t.fifthResult.prefix[0],t.fifthResult.root[0],t.fifthResult.suffix[0],t.postfix[0]])+ '\n'
     dumpling = open(outputPath, 'w', encoding = 'utf-8')
