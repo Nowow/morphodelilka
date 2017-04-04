@@ -1033,7 +1033,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
         one_prefix = None
         two_prefix = None
         two_root_no_prefix = None
-        if globalCounter:
+        if globalCounter:                   #skip full words
             for i in rootdict:
                 if word in rootdict[i]:
                     self.separated = word
@@ -1057,7 +1057,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
         
         
       # {'first':len(self.firstResult.suffix[0]),'second':len(self.secondResult.suffix),'fifth':len(self.fifthResult.suffix)}
-        if self.redflag == True:
+        if self.redflag == True:        # some bailing out
             return
         self.grab(self.firstResult)
         self.assemble()
@@ -1066,12 +1066,18 @@ class morphSplitnCheck(kuznecFinder, rootworks):
                 one_prefix = self.do_check(self.suffix[0])
         self.grab(self.secondResult)
         self.assemble()
-        if len(self.suffix) > 0:        
-            two_prefix = self.do_check(self.suffix[0])
-        self.grab(self.firstResult)
+        if len(self.suffix) > 0:
+            if len(self.suffix[0]) >0 : 
+                two_prefix = self.do_check(self.suffix[0])  
+        self.grab(self.fifthResult)
         self.assemble()
+        if len(self.suffix) > 0:
+            simple_multiroot = self.do_check(self.suffix[0])
+        
+        
+        
         if (one_prefix == True)&(len(self.suffix) <3):
-            print()
+            #print()
             self.grab(self.firstResult)
             self.assemble()
             print('odna pristavka')
