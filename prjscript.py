@@ -4,16 +4,23 @@
 
 
 
-from nltk.stem import snowball as stem
+#from nltk.stem import snowball as stem
+import morph_container
 #import time
 import pymystem3
 from collections import defaultdict
 import operator
 
+
+def printx(*args):
+    #print(args)
+    pass
+
 mstm = pymystem3.Mystem()
 
+musor = ['1','2','3','4','5','6','7','8','9','0']
 vowels = ['а', 'у', 'о', 'ы', 'и', 'э', 'я', 'ю', 'ё', 'е']
-
+"""
 mistakes = []
 text = open('mistakes.txt', 'r') 
 for line in text:
@@ -36,13 +43,14 @@ for line in mist:
     mistakes2.append(line.replace('\n',''))
 
 mist.close()
-stmr = stem.RussianStemmer()
+"""
+stmr = morph_container.controller()
 
 # for item in mistakes:
  #   cash = []
  #   for word in item:
  #       cash.append(stmr.stem(word))
-#    print(cash)
+#    printx(cash)
 
 
 grStoplist = ['CONJ','INTJ','PART','PR','SPRO']
@@ -56,7 +64,7 @@ class kuznec:
     suffixdict = defaultdict(list)
     cashline = []
     
-    with open('umorphodict2.csv', 'r', encoding = 'utf-8') as slovar:
+    with open('resources/umorphodict2.csv', 'r', encoding = 'utf-8') as slovar:
         next(slovar)
     
         for line in slovar:
@@ -69,6 +77,12 @@ class kuznec:
                 for gram in grGolist:
                     if gram in line[5].replace('\n','').split(','):
                         rootdict[gram] += [line[1]]
+                        if len(line[4])>0:
+                            allom = line[4]
+                            for x in musor:
+                                allom.replace(x,'')
+                            allom = allom.split('|')
+                            rootdict[gram]+=allom
             if line[2] == 'суффикс':
                 for gram in grGolist:
                     if gram in line[5].replace('\n','').split(','):
@@ -109,13 +123,13 @@ interfixlist += ['я']
 #            if worddict[word][str(pl)]['status'] == 'суффикс':
 #                wcash.append(worddict[word][str(pl)]['morph'])
 #        except:
-#            print('boink!')
+#            printx('boink!')
 #            pass
 #    mrph = set(wcash)
 
 
 
-# print(stmr.stemmmm('изменяющимися'))
+# printx(stmr.stemmmm('изменяющимися'))
 
 def Carthes(*args):
   
@@ -137,17 +151,17 @@ class get_sfx():
     sfx2ndordercash = []
     flag = False 
     def sfx2ndorder(self, text, suffix):
-        #print(suffix)
+        #printx(suffix)
         for i in suffix:
-            #print(i)
+            #printx(i)
             cart = Carthes(self.sfxs,[i])
-            #print(cart[:10])
+            #printx(cart[:10])
             for m in cart:
                 if text.endswith(m):
                     self.sfxcash.append(m)
                     self.sfx2ndordercash.append(m)
                     self.sfxdict[m] = [m[:len(m) - len(i)], i]
-                    #print('суффикс ДВОЙНОЙ ' + m + ' ss ' + i +' !!!')
+                    #printx('суффикс ДВОЙНОЙ ' + m + ' ss ' + i +' !!!')
                     self.flag = True
     def sfx3dorder(self,text,suffix):
         for i in suffix:
@@ -165,14 +179,14 @@ class get_sfx():
         self.sfxs = []
         self.sfxs = suffix
         for i in suffix:
-#        print(i)
+#        printx(i)
             if text.endswith(i):
                 self.sfxcash.append(i)
                 self.sfxdict[i] = [i]
-                #print('суффикс ' + i + ' !!!')
+                #printx('суффикс ' + i + ' !!!')
        
         if len(self.sfxcash) > 0:
-            #print(self.sfxcash, text)
+            #printx(self.sfxcash, text)
             self.sfx2ndorder(text, self.sfxcash)
         #if self.flag:
        #     self.sfx3dorder(text,self.sfx2ndordercash)
@@ -191,7 +205,7 @@ def strip_end(text, suffix, scheck = 0):
             
                     
         else:
-            print('VOWELCOUNT INSUFFICIENT')
+            printx('VOWELCOUNT INSUFFICIENT')
             return([text,''])   
     else:
         return(text[:len(text)-len(suffix)])
@@ -201,7 +215,7 @@ def strip_end(text, suffix, scheck = 0):
 #    prcash = []
 #    for i in prst:
 #        if text.startswith(i):
-#            print('Приставка ' + i + ' !!!')
+#            printx('Приставка ' + i + ' !!!')
 #            prcash.append(i)
             
 class prefixwork:
@@ -213,7 +227,7 @@ class prefixwork:
         
         for i in prst:
             if text.startswith(i):
-                #print(' CLASSNAJA Приставка ' + i + ' !!!')
+                #printx(' CLASSNAJA Приставка ' + i + ' !!!')
                 #vowelcount = 0
                 #for s in vowels:
                     
@@ -238,26 +252,28 @@ class prefixwork:
             self.maxprefix = ''
         
 class postfixwork:
-    def get_postfix(self, text, post):
+    def get_postfix(self, text, post, pos = ''):
         self.postfixlist = ['']
-        
+        #print(pos)
         for i in post:
             if text.endswith(i):
-#                print(' CLASSNAJA okon4anie ' + i + ' !!!')
-#                vowelcount = 0
-#                for s in vowels:
-#                    
-#                    vowelcount = vowelcount + text[:len(text)-len(i)].count(s)
-#                self.vowelcount = vowelcount
-#                if vowelcount > 0:
-#                    ostatok = text[len(i):]
+                #print(i, 'OKON4ANIE')
+                #if pos == 'S':
+                #    if i == 'ть':
+                        #print('BABUDA')
+                        
+                #        continue
+#                
                 self.postfixlist.append(i)
     def strip_end(self):
         if len(self.postfixlist) > 0:
             self.maxpostfix = max(self.postfixlist, key = len)
             
-    def __init__(self, text, post = stmr.gtpost()):
-        self.get_postfix(text, post)
+    def __init__(self, text, post = stmr.gtpost(), pos = '', sklonenie = False):
+        
+        if sklonenie == True:
+            post = stmr.gtpost_burelom()
+        self.get_postfix(text, post, pos = pos)
         self.strip_end()
     
         if len(self.postfixlist) > 0:
@@ -281,44 +297,7 @@ def get_syll(word):
     
     
     
-#def recheck(word):
-#    print('RECHECK WITH PRSYLL IS BEING RUN')
-#    print(word)
-#    if word in rootdict:
-#        print('STRIKE WORD')
-#        return((word,1))
-# A-ROOT STEP -----------------------------------------------------------------
-#    if word.endswith('а'):
-#        arootDict = []
-#        for i in stmr.gtart():
-#            if word.endswith(i):
-#                arootDict.append(i)
-#        if len(arootDict) > 0:
-#            maxARoot = (max(arootDict, key = len))
-#            prst = word[:len(word) - len(maxARoot)]
-#            if prst in stmr.gtprst(): 
-#                print('STRIKE A-ROOT')
-#                return([maxARoot, prst, ''],5)
 #
-#    nopr = prefixwork(word)
-#    if nopr.ostatok in rootdict:
-#        print('STRIKE SOLO PR')
-#        return([nopr.ostatok, nopr.maxprefix, ''],2)
-#    sfxrtcash = {}
-#    for i in get_sfx(word, stmr.gtsfx()):
-#        if strip_end(word, i) in rootdict:
-#            sfxrtcash.update({strip_end(word, i) : i})
-#    if len(sfxrtcash) > 0 :
-#        maxkey = (max(list(sfxrtcash.keys()), key = len))
-#        return([maxkey, '', sfxrtcash[maxkey]],3)
-#    if ((len(sfxrtcash) == 0) and (nopr.maxprefix != '')):
-#        for i in get_sfx(nopr.ostatok, stmr.gtsfx()):
-#            if strip_end(nopr.ostatok, i) in rootdict:
-#                sfxrtcash.update({strip_end(nopr.ostatok, i) : i})
-#    if len(sfxrtcash) > 0:
-#        print('SUTORAIKU SFX!')    
-#        maxkey = (max(list(sfxrtcash.keys()), key = len))
-#        return([maxkey, nopr.maxprefix, sfxrtcash[maxkey]],3)
 
 class goThroughWord():
     def go_get_it(self,word, PoS):
@@ -328,12 +307,12 @@ class goThroughWord():
         RSsuffix = ['']
         RPSroot = ['']
         rootdict = kuzdra.rootdict[PoS]
-        #print(rootdict)
+        #printx(rootdict)
 # FIRST STEP ------------------------------------------------------------------    
 # CHECK IF THATS ROOT
         if word in rootdict:
 
-            print('STRIKE WORD')
+            printx('STRIKE WORD')
 
             self.root += [word]
             return
@@ -347,7 +326,7 @@ class goThroughWord():
                 maxARoot = (max(arootDict, key = len))
                 prst = word[:len(word) - len(maxARoot)]
                 if prst in stmr.gtprst(): 
-                    print('STRIKE A-ROOT')
+                    printx('STRIKE A-ROOT')
                     self.prefix += [prst]
                     self.root += [maxARoot]
                     return
@@ -364,7 +343,7 @@ class goThroughWord():
                 zzjay.partofspeech = PoS
                 zzjay.assemble()
                 if zzjay.do_check(nopr.maxprefix,'префикс'):
-                    print('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
+                    printx('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
                     self.root += [nopr.ostatok]
                     self.prefix += [nopr.maxprefix]
                     return
@@ -373,11 +352,11 @@ class goThroughWord():
         sfxrtcash2 = {}
         action_done = get_sfx(word, stmr.gtsfx())
         self.action_done = action_done
-        #print(list(set(action_done.sfxcash)))
+        #printx(list(set(action_done.sfxcash)))
         for i in list(set(action_done.sfxcash)):
-            #print(i)
+            #printx(i)
             if strip_end(word, i) in rootdict:
-                #print('da '+strip_end(word, i))
+                #printx('da '+strip_end(word, i))
                 sfxrtcash.update({strip_end(word, i) : i})
         self.sfxrtcash = sfxrtcash
 #root + suffix
@@ -387,55 +366,55 @@ class goThroughWord():
             #self.suffix += [action_done.sfxdict[sfxrtcash[maxkey]]]
             RSroot = [maxkey]
             RSsuffix = [sfxrtcash[maxkey]]
-            #print(sfxrtcash)
-            print('STRIKE SOLO SUFFIX - root: ' + maxkey + ', suffix: ' + sfxrtcash[maxkey])
+            #printx(sfxrtcash)
+            printx('STRIKE SOLO SUFFIX - root: ' + maxkey + ', suffix: ' + sfxrtcash[maxkey])
             #return
 # root + prefix + suffix
 #        if ((len(sfxrtcash) == 0) and (nopr.maxprefix != '')):
         action_done = get_sfx(nopr.ostatok, stmr.gtsfx())
-        #print(list(set(action_done.sfxcash)))
+        #printx(list(set(action_done.sfxcash)))
         for i in list(set(action_done.sfxcash)):
             if strip_end(nopr.ostatok, i) in rootdict:
                 sfxrtcash2.update({ strip_end(nopr.ostatok, i) : i })
-        #print(sfxrtcash)
+        #printx(sfxrtcash)
         if len(sfxrtcash2) > 0:
-            #print('SUTORAIKU SFX!')    
+            #printx('SUTORAIKU SFX!')    
             maxkey = (max(list(sfxrtcash2.keys()), key = len))
-            #print(sfxrtcash2)
+            #printx(sfxrtcash2)
             RPSroot = [maxkey]
             RPSprefix = [nopr.maxprefix]
             RPSsuffix = [sfxrtcash2[maxkey]]
-            #print(action_done.sfxdict)
+            #printx(action_done.sfxdict)
             
            
             if (len(RPSroot[0]) >= len(RSroot[0]))&(len(RPSprefix[0])>0) :
-                #print(RPSroot,RSroot)
-                print('ding\nFetching result:', RPSprefix, RPSroot, RPSsuffix)
+                #printx(RPSroot,RSroot)
+                printx('ding\nFetching result:', RPSprefix, RPSroot, RPSsuffix)
                 if globalCounter>0:
                     zzjay.root = RPSroot
                     zzjay.prefix = RPSprefix
                     zzjay.assemble()
                     if zzjay.do_check(RPSprefix[0],'префикс'):
-                        print('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
+                        printx('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
                         self.root = RPSroot
                         self.prefix = RPSprefix
                         self.suffix = RPSsuffix
                         return
                     else:
-                        print('dongdong\nFetching result:', RSroot, RSsuffix)
+                        printx('dongdong\nFetching result:', RSroot, RSsuffix)
                         self.root = RSroot
                         self.suffix = RSsuffix
                 #self.root = RPSroot
                 #self.prefix = RPSprefix
                 #self.suffix = RPSsuffix
             else:
-                print('dong\nFetching result:', RSroot, RSsuffix)
+                printx('dong\nFetching result:', RSroot, RSsuffix)
                 self.root = RSroot
                 self.suffix = RSsuffix
             return
-       # print(sfxrtcash,sfxrtcash2)
+       # printx(sfxrtcash,sfxrtcash2)
         if len(sfxrtcash) > 0:
-            print('\n Fetching result:', RSroot, RSsuffix)
+            printx('\n Fetching result:', RSroot, RSsuffix)
             self.root = RSroot
             self.suffix = RSsuffix 
             return
@@ -450,7 +429,7 @@ class goThroughWord():
                 
                 RSroot = truncated
                 RSsuffix = word[len(word)-i+1:]
-                print('DIRTY TRICKS - ROOT:',RSroot, 'SUFFIX:',RSsuffix)
+                printx('DIRTY TRICKS - ROOT:',RSroot, 'SUFFIX:',RSsuffix)
                 self.root = [RSroot]
                 self.suffix = [RSsuffix]
                 return
@@ -474,104 +453,12 @@ class goThroughWord():
         self.interfix = []
         #self.word = self.word.ostatok
         self.word = word
-        print('Fetching basic morphemes... ' + word )
+        printx('Fetching basic morphemes... ' + word )
         self.go_get_it(word, PoS)
 
 
 class rootworks():
     
-######## DEPRECATED -----------------------------------------------------------
-#------------------------------------------------------------------------------
-    
-#    def go_get_it(self,word):
-#        self.successCode = True
- #       
-# FIRST STEP ------------------------------------------------------------------    
-# CHECK IF THATS ROOT
-#        if word in rootdict:
-#
-#            print('STRIKE WORD')
-#
-#            self.root += [word]
-#            return
-## A-ROOT STEP -----------------------------------------------------------------
-#        if self.word.endswith('а'):
-#            arootDict = []
-#            for i in stmr.gtart():
-#                if word.endswith(i):
-#                    arootDict.append(i)
-#            if len(arootDict) > 0:
-#                maxARoot = (max(arootDict, key = len))
-#                prst = word[:len(word) - len(maxARoot)]
-#                if prst in stmr.gtprst(): 
-#                    print('STRIKE A-ROOT')
-#                    self.prefix += [prst]
-#                    self.root += [maxARoot]
-#                    return
-## SECOND STEP -----------------------------------------------------------------
-# PREFIX + ROOT
-#        nopr = prefixwork(word)
-#
-#        self.nopr = nopr
-#        if nopr.ostatok in rootdict:
-#            print('STRIKE SOLO PREFIX')
-#            self.root += [nopr.ostatok]
-#            self.prefix += [nopr.maxprefix]
-#            return
-## THIRD STEP ------------------------------------------------------------------
-#        sfxrtcash = {}
-#        for i in get_sfx(word, stmr.gtsfx()):
-#            if strip_end(word, i) in rootdict:
-#                sfxrtcash.update({strip_end(word, i) : i})
-##root + single suffix
-#        if len(sfxrtcash) > 0 :
-#            maxkey = (max(list(sfxrtcash.keys()), key = len))
-#            self.root += [maxkey]
-#            self.suffix += [sfxrtcash[maxkey]]
-#            return
-## root + prefix + suffix
-#        if ((len(sfxrtcash) == 0) and (nopr.maxprefix != '')):
-#            for i in get_sfx(nopr.ostatok, stmr.gtsfx()):
-#                if strip_end(nopr.ostatok, i) in rootdict:
-#                    sfxrtcash.update({strip_end(nopr.ostatok, i) : i})
-#        if len(sfxrtcash) > 0:
-#            print('SUTORAIKU SFX!')    
-#            maxkey = (max(list(sfxrtcash.keys()), key = len))
-#            print(sfxrtcash)
-#            self.root += [maxkey]
-#            self.prefix += [nopr.maxprefix]
-#            self.suffix += [sfxrtcash[maxkey]]
-#            return
-#
-#        self.successCode = False
-#        return 
-
-#---------------------------------------------------------------------------
-########## DEPRECATED------------------------------------------------------
-        
-#    def flush(self):
-#        self.prefix = []
-#        self.suffix = []
-#        self.root = []
-#
-#        self.interfix = []
-#    
-#    def fetch_decorator(self, dec_fn):
-#        def calm_pliz():
-#            cashPrefix = self.prefix
-#            cashSuffix = self.suffix 
-#            cashRoot = self.root
-#            self.prefix = []
-#            self.suffix = []
-#            self.root = []
-#            dec_fn()
-#            self.currPrefix = self.prefix
-#            self.currSuffix = self.suffix
-#            self.currRoot = self.root
-#            self.prefix = cashPrefix
-#            self.suffix = cashSuffix
-#            self.root = cashRoot
-        
     def grab(self,results):
         self.prefix = []
         self.suffix = []
@@ -597,8 +484,8 @@ class rootworks():
 
             
     
-    def __init__(self, word, PoS):
-        self.word = postfixwork(word)    
+    def __init__(self, word, PoS, sklonenie):
+        self.word = postfixwork(word, pos = PoS, sklonenie = sklonenie)    
         self.postfix = [self.word.maxpostfix]
         self.prefix = []
         self.second_prefix = []
@@ -616,7 +503,7 @@ class rootworks():
 #        self.go_get_it(word)
         self.firstResult = goThroughWord(word, PoS)
         #self.grab(self.firstResult)
-       # print('adasdasdasd' + self.root + self.prefix + self.postfix + self.suffix)
+       # printx('adasdasdasd' + self.root + self.prefix + self.postfix + self.suffix)
         
 # ADDITIONAL PREFIX
         self.secondResult = goThroughWord(self.firstResult.nopr.ostatok, PoS)
@@ -630,50 +517,50 @@ class rootworks():
 # MULTI-ROOT
         def multiroot(warudo, PoS):
             
-            print('IWEM MNOGO ROOT for word: '+ warudo, ' PoS: '+PoS)
-#            print(warudo)
+            printx('IWEM MNOGO ROOT for word: '+ warudo, ' PoS: '+PoS)
+#            printx(warudo)
 #            self.flush()
             rootCash = []
             nFlag = False
             for i in rootdict:
                 if warudo.startswith(i):
                     rootCash.append(i)
-            #print(rootCash)
+            #printx(rootCash)
             if len(rootCash) == 0:
-                print('NO MULTIROOTS, BAILING OUT')
+                printx('NO MULTIROOTS, BAILING OUT')
                 return(goThroughWord('',PoS))
             if len(rootCash)>0:
                 #self.extraRoot += [max(list(rootCash), key = len)]
                 warudo = warudo[len(max(list(rootCash), key = len)):] # TAK NADO, POVER'.
-                print('SOME EXTRA ROOT FOUND, now word: '+ warudo + ', root: ' + max(list(rootCash), key = len))
-               # print(warudo)
+                printx('SOME EXTRA ROOT FOUND, now word: '+ warudo + ', root: ' + max(list(rootCash), key = len))
+               # printx(warudo)
               #  self.go_get_it(word)
                 if warudo.startswith('н')|warudo.startswith('к'):
                     letter = warudo[0]
                     warudo = warudo[1:]
                     nFlag = True
-                    print('YERRRR STARTS FROM N')
+                    printx('YERRRR STARTS FROM N')
                 #if len(warudo) < 3:
-               #     print('MULTIROOT BAILING OUT, TOO SHORD WORD: '+warudo)
+               #     printx('MULTIROOT BAILING OUT, TOO SHORD WORD: '+warudo)
                #     return(goThroughWord('', PoS))
               
                 basicResult = goThroughWord(warudo, PoS)
                 if nFlag:
-                    print('YERRRRRRRRRRR ADDED N TO SFX')
+                    printx('YERRRRRRRRRRR ADDED N TO SFX')
                     basicResult.extraSuffix += [letter]
                 
-                print('GOING FOR WARUDO MORPHEMES')
+                printx('GOING FOR WARUDO MORPHEMES')
                 basicResult.extraRoot += [max(list(rootCash), key = len)]
                 #self.go_get_it(word)
                 self.grab(basicResult)
                 root_no_int = ''.join(basicResult.root)
                 root_int = ''
-                print('PROBABLE ROOT WITHOUT INTERFIX: '+root_no_int)
-                print('TRYING INTERFIXES...')
+                printx('PROBABLE ROOT WITHOUT INTERFIX: '+root_no_int)
+                printx('TRYING INTERFIXES...')
                 for i in interfixlist:
-                    print('I HAVE A WARUDO: ' + warudo + ', I HAVE AN INTERFIX: ' + i)
+                    printx('I HAVE A WARUDO: ' + warudo + ', I HAVE AN INTERFIX: ' + i)
                     if warudo.startswith(i):
-                        print(i)
+                        printx(i)
                         #self.flush()
                         #self.interfix += [i]
                         warudo = warudo[len(i):]
@@ -686,17 +573,17 @@ class rootworks():
                         #basicResult2.
                         #self.go_get_it(word)
                         root_int = ''.join(basicResult2.root)
-                        print('PROBABLE ROOT WITH INTERFIX: '+root_int)
+                        printx('PROBABLE ROOT WITH INTERFIX: '+root_int)
                         break
-                        #print('da eto on '+root_int)
-                print('SHOWDOWN - ' + root_no_int + ' vs ' + root_int)
+                        #printx('da eto on '+root_int)
+                printx('SHOWDOWN - ' + root_no_int + ' vs ' + root_int)
                 if len(root_int) >= len(root_no_int) and len(root_int) > 0:
-                    print('ROOT WITH INTERFIX WINS')
+                    printx('ROOT WITH INTERFIX WINS')
                     return(basicResult2)
                     #self.root = [root_int]
                     pass
                 else:
-                    print('ROOT WITHOUT INTERFIX WINS')
+                    printx('ROOT WITHOUT INTERFIX WINS')
                     return(basicResult)
                             #self.root = [root_no_int]
                             #aself.interfix = []
@@ -705,154 +592,23 @@ class rootworks():
 
         self.thirdResult = goThroughWord('')
         if len(self.firstResult.nopr.maxprefix) >0:
-            print(' -1 PREFIX')
+            printx(' -1 PREFIX')
             self.thirdResult = multiroot(self.firstResult.nopr.ostatok, PoS)
             if self.firstResult.nopr.maxprefix != None:
                 self.thirdResult.extraPrefix = self.firstResult.nopr.maxprefix
         self.fourthResult = goThroughWord('')
         if len(self.secondResult.nopr.maxprefix) > 0:
-            print(' -2 PREFIX')
+            printx(' -2 PREFIX')
             self.fourthResult = multiroot(self.secondResult.nopr.ostatok, PoS)
             if self.secondResult.nopr.maxprefix != None:
                self.fourthResult.extraPrefix = self.firstResult.nopr.maxprefix
                self.fourthResult.extrasecond_prefix = self.secondResult.nopr.maxprefix
         self.fifthResult = goThroughWord('')
-        print('-0 PREFIX')
+        printx('-0 PREFIX')
         self.fifthResult = multiroot(word, PoS)
         return
         
                             
-                            
-# NUJNA BIG COMBINED STADIA!!!!!!!!!!!!!!!!!!!!!!!!
-# UJE NET!!!!!!!!!!!
-
-# MORE PRISTAVKAS
-#        if not self.successCode:
-#            
-#            
-#            self.prefix += [firstResult.nopr.maxprefix]
-#            word = firstResult.nopr.ostatok
-#        
-#            print('MASS PREFIX STAGE')#
-
-#            print(self.postfix)
-#            print(word)
-#            
-#            self.prefx = goThroughWord(word)
-#            #self.go_get_it(word)
-#            
-#        return
-                   
-                    
-                    
-
-# MORE SUFFIXES
-#        if not self.successCode:
-#            self.prefix += [self.nopr.maxprefix]
-#            word = self.nopr.ostatok
-#            suffix = ''
-#            try:
-#                suffix = max(get_sfx(word,stmr.gtsfx()), key = len)
-#                self.suffix += [max(get_sfx(word,stmr.gtsfx()), key = len)]
-#            except:
-#                pass
-#            print(word)
-#            word = word[:len(word)-len(suffix)]
-#            print('MAX SUFFIX STAGE')
-#            print(self.suffix)
-#            print(word)
-#            
-#            self.go_get_it(word)
-
-
-# IF ALL FAILS        
-#        if not self.successCode:
-#            print('MISSION FAILED')
-#            self.flush()
-#            try:
-#                suffix = max(get_sfx(self.word,stmr.gtsfx()), key = len)
-#                self.suffix += [max(get_sfx(self.word,stmr.gtsfx()), key = len)]
-#            except:
-#                pass
-#            prefix = prefixwork(self.word[:len(self.word)-len(suffix)])
-#            self.root += [prefix.ostatok]
-#            self.prefix += [prefix.maxprefix]
-#
-            
-    
-#def get_root(text):
-#    global prtr
-#    word = postfixwork(text)
-#    prtr = word.maxpostfix
-#    word = word.ostatok
-#    word = stmr.stemmmm(text)[1]
-#    prtr = stmr.stemmmm(text)[2][0]
-#    print(prtr)
-#    print(word)
-#    nopr = None
-#    print(word)
-#    fst = 
-#    ffst = strip_end(word, stmr.gtsfx())
-#    fnl = strip_start(strip_end(word,stmr.gtsfx())[0],stmr.gtprst())
-
-    
-# FIRST STEP ------------------------------------------------------------------    
-#    if word in rootdict:
-#        print('STRIKE WORD')
-#        return((word,1))
-# FIRST STEP END --------------------------------------------------------------
-# A-ROOT STEP -----------------------------------------------------------------
-#    if word.endswith('а'):
-#        arootDict = []
-#        for i in stmr.gtart():
-#            print(i)
-#            if word.endswith(i):
-#                arootDict.append(i)
-#        if len(arootDict) > 0:
-#            maxARoot = (max(arootDict, key = len))
-#            prst = word[:len(word) - len(maxARoot)]
-#            if prst in stmr.gtprst(): 
-#                print('STRIKE A-ROOT')
-#                return([maxARoot, prst, ''],5)
-
-# SECOND STEP -----------------------------------------------------------------
- #   nopr = prefixwork(word)
- #   if nopr.ostatok in rootdict:
- #       print('STRIKE SOLO PR')
- #       return([nopr.ostatok, nopr.maxprefix, ''],2)
-# SECOND STEP END -------------------------------------------------------------
-# THIRD STEP ------------------------------------------------------------------
-#    sfxrtcash = {}
-#    for i in get_sfx(word, stmr.gtsfx()):
-#        if strip_end(word, i) in rootdict:
-#           sfxrtcash.update({strip_end(word, i) : i})
-#    if len(sfxrtcash) > 0 :
-#        maxkey = (max(list(sfxrtcash.keys()), key = len))
-#        return([maxkey, '', sfxrtcash[maxkey]],3)
-#    if ((len(sfxrtcash) == 0) and (nopr.maxprefix != '')):
-#        for i in get_sfx(nopr.ostatok, stmr.gtsfx()):
-#            if strip_end(nopr.ostatok, i) in rootdict:
-#                sfxrtcash.update({strip_end(nopr.ostatok, i) : i})
-#    if len(sfxrtcash) > 0:
-#        print('SUTORAIKU SFX!')    
-#        maxkey = (max(list(sfxrtcash.keys()), key = len))
-#        return([maxkey, nopr.maxprefix, sfxrtcash[maxkey]],3)
-#   tweakword = word + get_syll(prtr)
-#    print('ITO TWEAKWORD - ' + tweakword)
-#    twres = recheck(tweakword)
-#    if twres != None:
-#        return twres
-#   
-#    mxsfx =  max(get_sfx(word,stmr.gtsfx()), key = len)
-#    
-##    rezanoe = strip_start(strip_end(word,mxsfx),stmr.gtprst())
-#    rezanoe = prefixwork(strip_end(word,mxsfx))
-    
-#    fnl = [rezanoe.ostatok, rezanoe.maxprefix, mxsfx]
-#    print(fnl)
-#    print('asdasdsd')
-    
-#    return(fnl,4)
     
 class separator():
            
@@ -874,15 +630,29 @@ class separator():
             analyz = analyz[1]['analysis'][0]['gr']
         #analyz = mstm.analyze(word)[0]['analysis'][0]['gr']
         self.partofspeech = analyz.split(',')[0].split('=')[0]
+        self.sklonenie_im_or_vin = False
+        if self.partofspeech == 'S':    
+            for z in analyz.split(','):
+                if 'неод' in z or 'од' in z:
+                    #print(z)
+                    for x in ['им','вин']:
+                        if x in z:
+                            self.sklonenie_im_or_vin = True
+                            break
+                        else:
+                            self.sklonenie_im_or_vin = False
+                    
+        else:
+            self.sklonenie_im_or_vin = False
         for i in grStoplist:
             if analyz.startswith(i):
                 self.redflag = True
                 self.root = self.originalWord
                 self.separated = self.originalWord
-                print('stopword, bailing out')
+                printx('stopword, bailing out')
                 return
         
-        rslt = rootworks(word, self.partofspeech)
+        rslt = rootworks(word, self.partofspeech, self.sklonenie_im_or_vin)
         self.root = rslt.root
         self.prefix = rslt.prefix
         self.postfix = rslt.postfix
@@ -915,14 +685,14 @@ class separator():
         detachedSFXlist = []
         sfxholder = []
         onemorecycle = True
-        #print('CYCLOOOOOOOOOO DADADADADADAM DA DA DAM - CCLO!')
+        #printx('CYCLOOOOOOOOOO DADADADADADAM DA DA DAM - CCLO!')
         while onemorecycle:
             for sfx in suffixdict[self.partofspeech]:
                 try:
                     if self.suffix[0][:len(self.suffix[0]) - len(detachedSFX)].endswith(sfx):
                         sfxholder.append(sfx)
                 except:
-                    #print('too short!')
+                    #printx('too short!')
                     pass
             if len(sfxholder) > 0:
                 detachedSFX = max(sfxholder, key = len) + detachedSFX
@@ -930,15 +700,19 @@ class separator():
                 sfxholder = []
             else:
                 onemorecycle = False
-        #print(detachedSFXlist)
+        #printx(detachedSFXlist)
         self.suffix = detachedSFXlist #DANGEROUS FOR PROVERKAS
+        
         self.morphList += self.extraPrefix + self.extraRoot + self.extraSuffix + self.interfix + self.second_prefix + self.prefix + self.root + self.suffix+ self.postfix
         
         if self.reflexiveRemoved:
             self.reflexive =  self.originalWord[-2:]
             self.morphList += [self.reflexive]
+        if len(self.suffix) > 0:
+            if self.partofspeech == 'V' and 'ал' == self.suffix[0]:
+                self.suffix = ['a','л']
             
-        self.separated = ':'.join(self.morphList)
+        self.separated = ':'.join([x for x in self.morphList if len(x)>0])
         self.enumerated = []
         
         for i,m in enumerate(self.morphList):
@@ -946,6 +720,20 @@ class separator():
 
     def __init__(self,word):
         self.raspil(word)
+    
+    
+def get_winners(dict_of_competitors, modus):
+        
+    if modus == 'max':
+        best_score = max(dict_of_competitors.values())
+    elif modus == 'min':
+        best_score = min(dict_of_competitors.values())
+    else:
+        raise ValueError('PROVIDE MODUS OF WINNER!')
+    
+    return[x for x in dict_of_competitors if dict_of_competitors[x] == best_score]
+        
+        
     
     
 class kuznecFinder(kuznec, separator):
@@ -960,10 +748,10 @@ class kuznecFinder(kuznec, separator):
             rootFound = False
             for pos in self.worddict[word]:
                 pos = self.worddict[word][pos]
-                #print(pos)
+                #printx(pos)
                 if (pos['status'] == 'корень' and pos['morph'] == root):
                     rootFound = True
-#                    print('NAWEL! ' + word)
+#                    printx('NAWEL! ' + word)
                     break
             if rootFound:
                 self.wordlist.append(word)
@@ -980,46 +768,46 @@ class kuznecFinder(kuznec, separator):
         elist = self.enumerated
         for unit in elist:
             if thing in unit:
-                #print(thing)
-                #print(unit)
+                #printx(thing)
+                #printx(unit)
                 return(unit)
     def mat(self, morpheme):
         rootNum = self.matchPos(self.root[0])
         morphNum = self.matchPos(morpheme)
-        #print(self.root)
-        #print(morpheme)
-        #print(rootNum)
-        #print(morphNum)
+        #printx(self.root)
+        #printx(morpheme)
+        #printx(rootNum)
+        #printx(morphNum)
         
         delta = rootNum[1] - morphNum[1]
         return([delta,rootNum,morphNum])
     def checkPos(self, morpheme,whatmorph = 'суффикс', bundle = None):
         if bundle == None:
             bundle = self.mat(morpheme)
-#        print(bundle)
+#        printx(bundle)
         for word in self.wordlist:
             mPos = None
             rPos = None
             for pos in self.worddict[word]:
-   #             print(word)
+   #             printx(word)
                 posNum = pos
                 pos = self.worddict[word][pos]
                 
                 
                 if (pos['morph'] ==  morpheme)&(pos['status'] == whatmorph) :
                     mPos = posNum
-#                    print('DABUDI')
+#                    printx('DABUDI')
                 if pos['morph'] == self.root[0] :
-#                    print('DABUDAI')
+#                    printx('DABUDAI')
                     rPos = posNum
             if (mPos != None and rPos != None):
                 empDelta = int(rPos) - int(mPos)
-#                print(empDelta, rPos, mPos)
+#                printx(empDelta, rPos, mPos)
                 if empDelta == bundle[0]:
-                    print('Yeach that is the word - ' + word)
+                    printx('Yeach that is the word - ' + word)
                     return(True)
                     break
-        print('MORPHEME SHALL NOT PASS!')
+        printx('MORPHEME SHALL NOT PASS!')
         return(False)
 
 
@@ -1033,15 +821,34 @@ class morphSplitnCheck(kuznecFinder, rootworks):
         one_prefix = None
         two_prefix = None
         two_root_no_prefix = None
-        if globalCounter:                   #skip full words
-            for i in rootdict:
-                if word in rootdict[i]:
-                    self.separated = word
-                    self.root = word
-                    return
+        #if globalCounter:
+        #    for i in rootdict:
+        #        if word in rootdict[i]:
+        #            self.separated = word
+        #            self.root = word
+        #            self.originalWord = word
+        #            return
         self.raspil(word)
-        result_suffix_dict = {}
-        result_root_list = []
+        result_suffix_dict = {
+                'first':0,
+                'second':0,
+                'fifth':0
+                }
+        result_root_dict = {
+                'first':'',
+                'second':'',
+                'fifth':''
+                }
+        match_suffix_dict = {
+                'first':'',
+                'second':'',
+                'fifth':''
+                }
+        scoreboard = {
+                'first':0,
+                'second':0,
+                'fifth':0
+                }
         if len(self.firstResult.suffix) > 0:
             result_suffix_dict.update({'first':len(self.firstResult.suffix[0])})
         if len(self.secondResult.suffix) > 0:
@@ -1050,60 +857,233 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             result_suffix_dict.update({'fifth':len(self.fifthResult.suffix[0])})
         #if len(self.firstResult.root[0]) > 0:
         #    result_root_list.append(self.firstResult.root)
+        if len(self.firstResult.root) > 0:
+            result_root_dict['first'] = self.firstResult.root[0]
+        
         if len(self.secondResult.root) > 0:
-            result_root_list.append(self.secondResult.root[0])
+            result_root_dict['second'] = self.secondResult.root[0]
         if len(self.fifthResult.root) > 0:
-            result_root_list.append(self.fifthResult.root[0])
+            result_root_dict['fifth']= self.fifthResult.root[0]
         
         
       # {'first':len(self.firstResult.suffix[0]),'second':len(self.secondResult.suffix),'fifth':len(self.fifthResult.suffix)}
-        if self.redflag == True:        # some bailing out
+        if self.redflag == True:
             return
-        self.grab(self.firstResult)
-        self.assemble()
-        if len(self.suffix) > 0:
-            if len(self.suffix[0]) >0 :                        
-                one_prefix = self.do_check(self.suffix[0])
+#        self.grab(self.firstResult)
+#        self.assemble()
+        
+        try:
+            if len(self.suffix) > 0:
+                if len(self.suffix[0]) >0 :                        
+                    #one_prefix = self.do_check(self.suffix[0])
+                    cycle_cash = self.cycleThroughMorph(self.suffix)
+                    one_prefix = cycle_cash[0]
+                    if one_prefix:
+                        print('ONE PREFIX IS HERE')
+                        match_suffix_dict['first']=cycle_cash[1]
+        except:
+            pass
         self.grab(self.secondResult)
         self.assemble()
-        if len(self.suffix) > 0:
-            if len(self.suffix[0]) >0 : 
-                two_prefix = self.do_check(self.suffix[0])  
+        try:
+            if len(self.suffix) > 0:        
+                #two_prefix = self.do_check(self.suffix[0])
+                cycle_cash = self.cycleThroughMorph(self.suffix)
+                two_prefix = cycle_cash[0]
+                if two_prefix:
+                    print('TWO PREFIX IS HERE')
+                    match_suffix_dict['second']=cycle_cash[1]
+                    #scoreboard['second'] += 1
+        except:
+            pass
+
         self.grab(self.fifthResult)
         self.assemble()
-        if len(self.suffix) > 0:
-            simple_multiroot = self.do_check(self.suffix[0])
+#
+        if len(self.fifthResult.suffix) > 0:
+            if len(self.fifthResult.suffix[0]) > 0:
+                try:
+                    self.grab(self.fifthResult)
+                    self.assemble()
+                    cycle_cash = self.cycleThroughMorph(self.suffix)
+                    two_root_no_prefix = cycle_cash[0]
+                    if two_root_no_prefix:
+                        print('THREE PREFIX IS HERE')
+                        match_suffix_dict['fifth']=cycle_cash[1]
+                        #scoreboard['fifth'] += 1
+#                        printx('MULTIPREFIX WINS')
+#                        return
+                except:
+                    pass
+                
+        
+#            if not two_root_no_prefix: #TUT DORABOTAT'!!
+#                printx(self.root,self.suffix)
+#                if len(self.root)>0:
+#                    if (len(self.root[0]) > 2)&(len(self.suffix)==0):
+#                        printx('MULTIPREFIX DEEMED WORTHY')
+#                        return
+        #if len(result_suffix_dict) > 0:
+       #     chosen_one = m(result_suffix_dict.items(), key=operator.itemgetter(1))[0]
+       #     scoreboard[chosen_one]+= 1
+        morphListLength = {}
+        rootLength = {}
+        self.grab(self.firstResult)
+        self.assemble()
+        print(self.separated)
+        try:
+            rootLength['first']=len(self.root[0])
+            morphListLength['first']=len([x for x in self.morphList if len(x)>0])
+        except:
+            pass
+        self.grab(self.secondResult)
+        self.assemble()
+        print(self.separated)
+        try:
+            rootLength['second']=len(self.root[0])
+            morphListLength['second']=len([x for x in self.morphList if len(x)>0])
+        except:
+            pass
+        self.grab(self.fifthResult)
+        self.assemble()
+        print(self.separated)
+        try:
+            rootLength['fifth']=len(self.root[0])
+            morphListLength['fifth']=len([x for x in self.morphList if len(x)>0])
+        except:
+            pass
+        if self.partofspeech == 'S':
+            print('result_suffix_dict',result_suffix_dict)
+            for x in get_winners(result_suffix_dict,'min'):
+                scoreboard[x] += 1
+                if (result_suffix_dict[x] == 0)&(len(result_root_dict[x])>2):
+                    scoreboard[x] += 1
+      
+        print('morphListLength', morphListLength)
+
+        for x in get_winners(morphListLength,'min'):
+            
+            scoreboard[x]+= 1
+        print('rootLength',rootLength)
+   
+        for x in get_winners(rootLength,'max'):
+            
+            scoreboard[x]+= 1
+        print('match_suffix_dict',match_suffix_dict)
+        for x in get_winners(match_suffix_dict,'max'):
+            scoreboard[x]+= 1
+        winner = max(scoreboard.items(), key=operator.itemgetter(1))[0]
+        
+        print('scoreboard', scoreboard) 
+        print(winner)
+       
         
         
-        
-        if (one_prefix == True)&(len(self.suffix) <3):
-            #print()
+        if winner == 'first':
             self.grab(self.firstResult)
             self.assemble()
-            print('odna pristavka')
+            self.morphList = []
+            self.morphList += self.extraPrefix + self.extraRoot + self.extraSuffix + self.interfix + self.second_prefix + self.prefix + self.root + self.suffix+ self.postfix
+        
+            if self.reflexiveRemoved:
+                self.reflexive =  self.originalWord[-2:]
+                self.morphList += [self.reflexive]
+        
+            
+            self.separated = ':'.join([x for x in self.morphList if len(x)>0])
+
+            if len(self.separated) > len(self.originalWord):
+                return
+            else:
+                winner = 'second'
+        if winner == 'second':
+            self.grab(self.secondResult)
+            self.assemble()
+            self.morphList = []
+            self.morphList += self.extraPrefix + self.extraRoot + self.extraSuffix + self.interfix + self.second_prefix + self.prefix + self.root + self.suffix+ self.postfix
+        
+            if self.reflexiveRemoved:
+                self.reflexive =  self.originalWord[-2:]
+                self.morphList += [self.reflexive]
+        
+            
+            self.separated = ':'.join([x for x in self.morphList if len(x)>0])
+
+            if len(self.separated) > len(self.originalWord):
+                return
+            else:
+                winner = 'fifth'
+        if winner == 'fifth':
+            self.grab(self.fifthResult)
+            self.assemble()
+            self.morphList = []
+            self.morphList += self.extraPrefix + self.extraRoot + self.extraSuffix + self.interfix + self.second_prefix + self.prefix + self.root + self.suffix+ self.postfix
+        
+            if self.reflexiveRemoved:
+                self.reflexive =  self.originalWord[-2:]
+                self.morphList += [self.reflexive]
+        
+            
+            self.separated = ':'.join([x for x in self.morphList if len(x)>0])
+
+            if len(self.separated) > len(self.originalWord):
+                return
+        #print(scoreboard)
+        #print(max(scoreboard.items(), key=operator.itemgetter(1))[0])
+        
+        
+        
+        
+#        else:
+#                if (len(self.secondResult.root[0]) > len(self.fifthResult.root[0]) + 1)&(len(self.fifthResult.root[0]) < 3):
+#                    printx('ljhujkbmada')
+#                    self.grab(self.firstResult)
+#                    self.assemble()
+                    
+        '''
+        try:
+            if len(self.suffix) > 0:
+                if len(self.suffix[0]) >0 :                        
+                    one_prefix = self.do_check(self.suffix[0])
+        except:
+            pass
+        self.grab(self.secondResult)
+        self.assemble()
+        try:
+            if len(self.suffix) > 0:        
+                two_prefix = self.do_check(self.suffix[0])
+        except:
+            pass
+        self.grab(self.firstResult)
+        self.assemble()
+        if (one_prefix == True)&(len(self.suffix) <3):
+            printx()
+            self.grab(self.firstResult)
+            self.assemble()
+            printx('odna pristavka')
         elif (two_prefix == True)&(len(self.suffix) <3):                                # IF SUCCESS FOR FIRSTRESULT SUFFIX
             self.grab(self.secondResult)
             self.assemble()
-            print('dva pristaka')
+            printx('dva pristaka')
 #        elif (one_prefix == None):
 #            self.grab(self.firstResult)
 #            self.assemble()
-#            print('maybe one')
+#            printx('maybe one')
 #        elif two_prefix == None:
 #            self.grab(self.secondResult)
 #            self.assemble()
-#            print('maybe two')
+#            printx('maybe two')
         else:                               # MULTIROOT SHAKES IN
 
             if (len(self.firstResult.root) > 0)&(len(self.fifthResult.root) > 0):
                 if (len(self.firstResult.root[0]) > len(self.fifthResult.root[0]) + 1)&(len(self.fifthResult.root[0]) < 4):
-                    print('ljhujkbmada')
+                    printx('ljhujkbmada')
                     self.grab(self.firstResult)
                     self.assemble()
                     return
             self.grab(self.fifthResult)
             self.assemble()
-            #print('nihuja')
+            #printx('nihuja')
             if len(self.fifthResult.suffix) > 0:
                 if len(self.fifthResult.suffix[0]) > 0:
                     self.grab(self.fifthResult)
@@ -1111,51 +1091,50 @@ class morphSplitnCheck(kuznecFinder, rootworks):
                     #self.sfxcash = []
                     #two_root_no_prefix = Nonew
                     #for i in stmr.gtsfx():
-    #        print(i)
+    #        printx(i)
                     #    if self.suffix[0].startswith(i):
                     #        self.sfxcash.append(i)
                             #self.sfxdict[i] = [i]
                     #for i in Carthes(self.rootdict['суффикс'],self.rootdict['суффикс']):
                     #    if max(self.sfxcash, key = len) in i: # PROBABLY TUT POMENJAT'!!!!!!!!!!!!1 NA FULL SUFFIX
                     #        two_root_no_prefix = True
-                            #print(two_root_no_prefix)
-                            #print(i, max(self.sfxcash, key = len))
+                            #printx(two_root_no_prefix)
+                            #printx(i, max(self.sfxcash, key = len))
                     two_root_no_prefix = self.cycleThroughMorph(self.suffix)
                     if two_root_no_prefix:
-                        print('MULTIPREFIX WINS')
+                        printx('MULTIPREFIX WINS')
                         return
             if not two_root_no_prefix: #TUT DORABOTAT'!!
-                print(self.root,self.suffix)
+                printx(self.root,self.suffix)
                 if len(self.root)>0:
                     if (len(self.root[0]) > 2)&(len(self.suffix)==0):
-                        print('MULTIPREFIX DEEMED WORTHY')
+                        printx('MULTIPREFIX DEEMED WORTHY')
                         return
                 if len(result_suffix_dict) > 0:
                     chosen_one = min(result_suffix_dict.items(), key=operator.itemgetter(1))[0]
                     if chosen_one == 'first':
-                        print('V SOSTYAZANII SUFFIXOV POBEDIL FIRSTRESULT')
+                        printx('V SOSTYAZANII SUFFIXOV POBEDIL FIRSTRESULT')
                         self.grab(self.firstResult)
                         self.assemble()
                         return
                     elif chosen_one == 'second':
-                        print('V SOSTYAZANII SUFFIXOV POBEDIL SECONDRESULT')
+                        printx('V SOSTYAZANII SUFFIXOV POBEDIL SECONDRESULT')
                         self.grab(self.secondResult)
                         self.assemble()
                         return
                     elif chosen_one == 'fifth':
-                        print('V SOSTYAZANII SUFFIXOV POBEDIL FIFTHRESULT')
+                        printx('V SOSTYAZANII SUFFIXOV POBEDIL FIFTHRESULT')
                         return
-                print('labmada')
+                printx('labmada')
                 self.grab(self.firstResult)
                 self.assemble()
             else:
                 if (len(self.secondResult.root[0]) > len(self.fifthResult.root[0]) + 1)&(len(self.fifthResult.root[0]) < 3):
-                    print('ljhujkbmada')
+                    printx('ljhujkbmada')
                     self.grab(self.firstResult)
                     self.assemble()
                     
-                    
-            
+            '''
     def cycleThroughMorph(self, morpheme):
         concatenated = ''.join(morpheme)
         for i in range(len(concatenated)):
@@ -1164,8 +1143,8 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             inner_flag = self.checkPos(inner_suffix,bundle = [-1] )
             if inner_flag == True:
                 print('DA, TRUE! suffix:', inner_suffix)
-                return(True)
-        return(False)
+                return([True,inner_suffix])
+        return([False,''])
             
 
         
@@ -1183,12 +1162,12 @@ globalCounter += 1
 
 
 def goThroughCorpus(inp, outputPath):
-    inp = open('E:\\Users\\Robert\\Documents\\'+inp,'r',encoding = 'utf-8')
-    outputPath = 'E:\\Users\\Robert\\Documents\\' + outputPath
+    inpts = open('\\resources\\'+inp,'r',encoding = 'utf-8')
+    outputPath = '\\resources\\'+inp+'\\' + outputPath
     csvCash = 'Original\tSeparated\n'
-    for item in inp:
+    for item in inpts:
         item = item.replace('\n','')
-        print(item)
+        printx(item)
         t = morphSplitnCheck(item)
 #        t.grab(t.fifthResult)
 #        t.assemble()
@@ -1197,51 +1176,8 @@ def goThroughCorpus(inp, outputPath):
     dumpling = open(outputPath, 'w', encoding = 'utf-8')
     dumpling.write(csvCash)
     dumpling.close()
-        
+
+pass
     
 
 
-
-#adict = []    
-#for i in kuznec.rootdict:
-#    if i.endswith('а'):
-#        adict.append(i)
-        
-#print(set(adict))
-
-
-
-
-#########################
-# FUNKTSIA DLYA RAZDELKI NA MORFEMI
-# DLYA SAWI
-#def get_morphs(wd):
-#    wrd = raspil(wd)
-#    csh = wrd[2]+':'+':'.join(wrd[1][2])
-#    
-#    return(list(reversed(csh.split(':'))))
-
-    
-#########################
-
-#def finale():
-#    dump = open('proverka2.txt','w',encoding = 'utf-8')
-#    wcash = ''
-#    for i in mistakes:
-#        
-#        for w in i:
-#            try:
-#                wrd = raspil(w)
-#                wcash = wcash + 'Original : ' + w + '\n' + 'Separated: ' + wrd[2] + '\nSep. full: ' + wrd[2]+':'+':'.join(wrd[1][2]) + '\n\n\n'
-#            except:
-#                print('4eto powlo ne tak')
-#            
-#    print(wcash)
- #   dump.write(wcash)
- #   dump.close()
-    
-
-
-#for i in tuple(set(morphdict)):
-#    if word.endswith(i):
-#        print(strip_end(word,i))
