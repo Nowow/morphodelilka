@@ -1,15 +1,23 @@
-# morphodelilka
+# Пререквизиты
 
-установка - склонировать репозиторий (залить все файлы в папку) в место, где лежат все библиотеки (обычно  Дистрибутив\Lib\site-packages). snowball.py положить в nltk\stem
+pymystem3, nltk, Python 3.x 
 
-ИЛИ установить морфочекер https://github.com/IvankovCL/heritage_morphchecker2.0 и воспользоваться prjscript.py там
+pip install pymystem3, nltk
+ИЛИ самостоятельно
 
-пререквизиты - pymystem3, nltk
+# Установка 
+зайти в \Lib\site-packages
+git clone https://github.com/Nowow/morphodelilka.git
+ИЛИ в папку вашего проекта/virtualenv
 
-импорт - import morphodelilka (или соответствующие инструкции из морфчекера, если поставлен он)
-или имя папки, куда залили файлы вместо morphodelilka
+# Использование 
+import morphodelilka.prjscript as morphSep 
 
-разбор слова - prjscript.MorphSplitnCheck(слово)
+разбор слова 
+var = morphSep.MorphSplitnCheck(слово)
 
-морфемы - обьект.root, .prefix, .suffix, .postfix, .extraRoot, .extraPrefix, .interfix
-разделенное слово графически - объект.separated
+выбор морфем:
+var.root, .prefix, .second_prefix, .suffix, .postfix, .extraRoot, .extraPrefix, .interfix
+
+увидеть разделенное слово:
+var.separated
