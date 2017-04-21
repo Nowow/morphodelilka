@@ -12,9 +12,10 @@ from collections import defaultdict
 import operator
 
 
+
 def printx(*args):
-    #print(args)
-    pass
+    print(args)
+    
 
 mstm = pymystem3.Mystem()
 
@@ -338,15 +339,18 @@ class goThroughWord():
             
         if nopr.ostatok in rootdict:
             if (globalCounter>0):
-                zzjay.root = [nopr.ostatok]
-                zzjay.prefix = [nopr.maxprefix]
-                zzjay.partofspeech = PoS
-                zzjay.assemble()
-                if zzjay.do_check(nopr.maxprefix,'префикс'):
-                    printx('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
-                    self.root += [nopr.ostatok]
-                    self.prefix += [nopr.maxprefix]
-                    return
+                try:
+                    zzjay.root = [nopr.ostatok]
+                    zzjay.prefix = [nopr.maxprefix]
+                    zzjay.partofspeech = PoS
+                    zzjay.assemble()
+                    if zzjay.do_check(nopr.maxprefix,'префикс'):
+                        printx('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
+                        self.root += [nopr.ostatok]
+                        self.prefix += [nopr.maxprefix]
+                        return
+                except:
+                    pass
 # THIRD STEP ------------------------------------------------------------------
         sfxrtcash = {}
         sfxrtcash2 = {}
@@ -394,16 +398,19 @@ class goThroughWord():
                     zzjay.root = RPSroot
                     zzjay.prefix = RPSprefix
                     zzjay.assemble()
-                    if zzjay.do_check(RPSprefix[0],'префикс'):
-                        printx('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
-                        self.root = RPSroot
-                        self.prefix = RPSprefix
-                        self.suffix = RPSsuffix
-                        return
-                    else:
-                        printx('dongdong\nFetching result:', RSroot, RSsuffix)
-                        self.root = RSroot
-                        self.suffix = RSsuffix
+                    try:
+                        if zzjay.do_check(RPSprefix[0],'префикс'):
+                            printx('STRIKE SOLO PREFIX - prefix:' + nopr.maxprefix +', root: '+ nopr.ostatok)
+                            self.root = RPSroot
+                            self.prefix = RPSprefix
+                            self.suffix = RPSsuffix
+                            return
+                        else:
+                            printx('dongdong\nFetching result:', RSroot, RSsuffix)
+                            self.root = RSroot
+                            self.suffix = RSsuffix
+                    except:
+                        pass
                 #self.root = RPSroot
                 #self.prefix = RPSprefix
                 #self.suffix = RPSsuffix
@@ -624,10 +631,13 @@ class separator():
             word = word[:len(word)-2]
             self.reflexiveRemoved = True
         analyz = mstm.analyze(word)
-        if 'analysis' in analyz[0]:
-            analyz = analyz[0]['analysis'][0]['gr']
-        else:
-            analyz = analyz[1]['analysis'][0]['gr']
+        try:
+            if 'analysis' in analyz[0]:
+                analyz = analyz[0]['analysis'][0]['gr']
+            else:
+                analyz = analyz[1]['analysis'][0]['gr']
+        except:
+            analyz = 'CONJ'
         #analyz = mstm.analyze(word)[0]['analysis'][0]['gr']
         self.partofspeech = analyz.split(',')[0].split('=')[0]
         self.sklonenie_im_or_vin = False
@@ -701,7 +711,8 @@ class separator():
             else:
                 onemorecycle = False
         #printx(detachedSFXlist)
-        self.suffix = detachedSFXlist #DANGEROUS FOR PROVERKAS
+        if len(detachedSFXlist)>0:
+            self.suffix = detachedSFXlist #DANGEROUS FOR PROVERKAS
         
         self.morphList += self.extraPrefix + self.extraRoot + self.extraSuffix + self.interfix + self.second_prefix + self.prefix + self.root + self.suffix+ self.postfix
         
@@ -742,6 +753,7 @@ class kuznecFinder(kuznec, separator):
         if len(word) > 0:
             self.raspil(word)
         root = root[0]
+        
         self.rootdict = {'суффикс' : [], 'префикс' : [], 'интерфикс' : [], 'флексия' : []}
         self.wordlist = []
         for word in self.worddict:
@@ -829,6 +841,8 @@ class morphSplitnCheck(kuznecFinder, rootworks):
         #            self.originalWord = word
         #            return
         self.raspil(word)
+        if self.redflag:
+            return
         result_suffix_dict = {
                 'first':0,
                 'second':0,
@@ -960,26 +974,27 @@ class morphSplitnCheck(kuznecFinder, rootworks):
                     scoreboard[x] += 1
       
         print('morphListLength', morphListLength)
-
-        for x in get_winners(morphListLength,'min'):
+        if len(morphListLength)>0:
+            for x in get_winners(morphListLength,'min'):
             
-            scoreboard[x]+= 1
+                scoreboard[x]+= 1
         print('rootLength',rootLength)
-   
-        for x in get_winners(rootLength,'max'):
+        if len(rootLength)>0:
+            for x in get_winners(rootLength,'max'):
             
-            scoreboard[x]+= 1
+                scoreboard[x]+= 1
         print('match_suffix_dict',match_suffix_dict)
-        for x in get_winners(match_suffix_dict,'max'):
-            scoreboard[x]+= 1
-        winner = max(scoreboard.items(), key=operator.itemgetter(1))[0]
+        if len(match_suffix_dict)>0:
+            for x in get_winners(match_suffix_dict,'max'):
+                scoreboard[x]+= 1
+        self.winner = max(scoreboard.items(), key=operator.itemgetter(1))[0]
         
         print('scoreboard', scoreboard) 
-        print(winner)
+        print(self.winner)
        
         
         
-        if winner == 'first':
+        if self.winner == 'first':
             self.grab(self.firstResult)
             self.assemble()
             self.morphList = []
@@ -995,8 +1010,8 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             if len(self.separated) > len(self.originalWord):
                 return
             else:
-                winner = 'second'
-        if winner == 'second':
+                self.winner = 'second'
+        if self.winner == 'second':
             self.grab(self.secondResult)
             self.assemble()
             self.morphList = []
@@ -1012,8 +1027,9 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             if len(self.separated) > len(self.originalWord):
                 return
             else:
-                winner = 'fifth'
-        if winner == 'fifth':
+                print()
+                self.winner = 'fifth'
+        if self.winner == 'fifth':
             self.grab(self.fifthResult)
             self.assemble()
             self.morphList = []
