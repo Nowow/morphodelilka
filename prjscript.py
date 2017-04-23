@@ -893,7 +893,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
                     cycle_cash = self.cycleThroughMorph(self.suffix)
                     one_prefix = cycle_cash[0]
                     if one_prefix:
-                        print('ONE PREFIX IS HERE')
+                        printx('ONE PREFIX IS HERE')
                         match_suffix_dict['first']=cycle_cash[1]
         except:
             pass
@@ -905,7 +905,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
                 cycle_cash = self.cycleThroughMorph(self.suffix)
                 two_prefix = cycle_cash[0]
                 if two_prefix:
-                    print('TWO PREFIX IS HERE')
+                    printx('TWO PREFIX IS HERE')
                     match_suffix_dict['second']=cycle_cash[1]
                     #scoreboard['second'] += 1
         except:
@@ -922,7 +922,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
                     cycle_cash = self.cycleThroughMorph(self.suffix)
                     two_root_no_prefix = cycle_cash[0]
                     if two_root_no_prefix:
-                        print('THREE PREFIX IS HERE')
+                        printx('THREE PREFIX IS HERE')
                         match_suffix_dict['fifth']=cycle_cash[1]
                         #scoreboard['fifth'] += 1
 #                        printx('MULTIPREFIX WINS')
@@ -944,7 +944,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
         rootLength = {}
         self.grab(self.firstResult)
         self.assemble()
-        print(self.separated)
+        printx(self.separated)
         try:
             rootLength['first']=len(self.root[0])
             morphListLength['first']=len([x for x in self.morphList if len(x)>0])
@@ -952,7 +952,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             pass
         self.grab(self.secondResult)
         self.assemble()
-        print(self.separated)
+        printx(self.separated)
         try:
             rootLength['second']=len(self.root[0])
             morphListLength['second']=len([x for x in self.morphList if len(x)>0])
@@ -960,37 +960,37 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             pass
         self.grab(self.fifthResult)
         self.assemble()
-        print(self.separated)
+        printx(self.separated)
         try:
             rootLength['fifth']=len(self.root[0])
             morphListLength['fifth']=len([x for x in self.morphList if len(x)>0])
         except:
             pass
         if self.partofspeech == 'S':
-            print('result_suffix_dict',result_suffix_dict)
+            printx('result_suffix_dict',result_suffix_dict)
             for x in get_winners(result_suffix_dict,'min'):
                 scoreboard[x] += 1
                 if (result_suffix_dict[x] == 0)&(len(result_root_dict[x])>2):
                     scoreboard[x] += 1
       
-        print('morphListLength', morphListLength)
+        printx('morphListLength', morphListLength)
         if len(morphListLength)>0:
             for x in get_winners(morphListLength,'min'):
             
                 scoreboard[x]+= 1
-        print('rootLength',rootLength)
+        printx('rootLength',rootLength)
         if len(rootLength)>0:
             for x in get_winners(rootLength,'max'):
             
                 scoreboard[x]+= 1
-        print('match_suffix_dict',match_suffix_dict)
+        printx('match_suffix_dict',match_suffix_dict)
         if len(match_suffix_dict)>0:
             for x in get_winners(match_suffix_dict,'max'):
                 scoreboard[x]+= 1
         self.winner = max(scoreboard.items(), key=operator.itemgetter(1))[0]
         
-        print('scoreboard', scoreboard) 
-        print(self.winner)
+        printx('scoreboard', scoreboard) 
+        printx(self.winner)
        
         
         
@@ -1027,7 +1027,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             if len(self.separated) > len(self.originalWord):
                 return
             else:
-                print()
+                printx()
                 self.winner = 'fifth'
         if self.winner == 'fifth':
             self.grab(self.fifthResult)
@@ -1044,8 +1044,8 @@ class morphSplitnCheck(kuznecFinder, rootworks):
 
             if len(self.separated) > len(self.originalWord):
                 return
-        #print(scoreboard)
-        #print(max(scoreboard.items(), key=operator.itemgetter(1))[0])
+        #printx(scoreboard)
+        #printx(max(scoreboard.items(), key=operator.itemgetter(1))[0])
         
         
         
@@ -1158,7 +1158,7 @@ class morphSplitnCheck(kuznecFinder, rootworks):
             self.notinit(self.root)
             inner_flag = self.checkPos(inner_suffix,bundle = [-1] )
             if inner_flag == True:
-                print('DA, TRUE! suffix:', inner_suffix)
+                printx('DA, TRUE! suffix:', inner_suffix)
                 return([True,inner_suffix])
         return([False,''])
             
